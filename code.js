@@ -34,7 +34,7 @@ function are_isomorphic (graph1, graph2) {
     
     let degSeq1 = degSeq(graph1); 
     let degSeq2 = degSeq(graph2);
-    if (!areDegreeSequencesEqual(degreeSeq1, degreeSeq2)) return false;
+    if (!areDegreeSequencesEqual(degSeq1, degSeq2)) return false;
     
     if (numedge(graph1) !== numedge(graph2)) return false;
     
