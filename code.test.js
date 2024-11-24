@@ -25,13 +25,5 @@ function buildGraph(edges) {
     return graph;
 }
 
-// The code you write for checking graph isomorphism should be placed here
-// Example: Replace this with your function
-function areIsomorphic(graph1, graph2) {
-    // Replace with your implementation
-    // This is just a placeholder that always returns true for the sake of illustration
-    return true;
-}
-
 // Assert the test
 jsc.assert(test, { tests: 1000 });
