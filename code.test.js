@@ -1,29 +1,31 @@
 const fs = require('fs');
 const jsc = require('jsverify');
 
-// The property-based test checks if the given isomorphism checking function works
-const test = jsc.forall("array (pair nat nat)", function(edges) {
-    let max = edges.reduce((a, b) => Math.max(a, Math.max(b[0], b[1])), 0);
-    
-    // Build two graphs using the same list of edges but reversing the edges in the second graph
-    let graph1 = buildGraph(edges);
-    let graph2 = buildGraph(edges.reverse());
-    
-    // Test your `areIsomorphic` function (replace this with your actual implementation)
-    return areIsomorphic(graph1, graph2);
-});
-
-// Helper function to build a graph from edges (adjacency list)
+// Helper function to build an adjacency matrix from edges
 function buildGraph(edges) {
-    let graph = {};
+    let maxVertex = edges.reduce((max, [src, dest]) => Math.max(max, src, dest), 0);
+    let matrix = Array.from({ length: maxVertex + 1 }, () => Array(maxVertex + 1).fill(0));
+
     edges.forEach(([src, dest]) => {
-        if (!graph[src]) graph[src] = [];
-        if (!graph[dest]) graph[dest] = [];
-        graph[src].push(dest);
-        graph[dest].push(src); // assuming undirected graph
+        matrix[src][dest] = 1;
+        matrix[dest][src] = 1; // Assuming an undirected graph
     });
-    return graph;
+
+    return matrix;
 }
+
+// Property-based test to check if the isomorphism function works
+const test = jsc.forall("array (pair nat nat)", function(edges) {
+    // Ensure the edges array has at least one edge
+    if (edges.length === 0) return true;
+
+    // Build two graphs using the same edges but reversing the edge order for the second graph
+    let graph1 = buildGraph(edges);
+    let graph2 = buildGraph(edges.slice().reverse()); // Reverse edges without modifying the original array
+
+    // Test your `are_isomorphic` function
+    return are_isomorphic(graph1, graph2);
+});
 
 // Assert the test
 jsc.assert(test, { tests: 1000 });
