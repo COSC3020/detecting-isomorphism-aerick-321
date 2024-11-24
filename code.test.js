@@ -1,5 +1,7 @@
 const fs = require('fs');
 const jsc = require('jsverify');
+const { are_isomorphic } = require('./code');
+
 
 // Helper function to build an adjacency matrix from edges
 function buildGraph(edges) {
