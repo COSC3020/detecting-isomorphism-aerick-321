@@ -83,4 +83,4 @@ function are_isomorphic (graph1, graph2) {
     return isValidMapping(graph1, graph2); 
 }
 
-module.exports = { are_isomorphic, degSeq, areDegreeSequencesEqual, numedge };
+module.exports = { are_isomorphic, degSeq, hasSameDegreeMultiset, numedge, permutation, isValidMapping, preservesAdjacency};
