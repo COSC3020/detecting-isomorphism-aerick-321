@@ -15,29 +15,51 @@ function buildGraph(edges) {
     return matrix;
 }
 
-// Generate sparse graphs with limited size
-const limitedEdges = jsc.suchthat(
-    jsc.array(jsc.tuple([jsc.nat(7), jsc.nat(7)])), // Pairs of vertices between 0 and 7
-    edges => edges.length <= 10 // Sparse graph (max 10 edges)
-);
+// Helper function to create an isomorphic graph by relabeling vertices
+function createIsomorphicGraph(graph, mapping) {
+    const n = graph.length;
+    let newGraph = Array.from({ length: n }, () => Array(n).fill(0));
 
-// Property-based test to check if the isomorphism function works
-const test = jsc.forall(limitedEdges, function(edges) {
-    if (edges.length === 0) return true; // Empty graph is trivially isomorphic
-
-    // Build two graphs
-    let graph1 = buildGraph(edges);
-    let reversedEdges = edges.map(([src, dest]) => [dest, src]); // Reverse edges
-    let graph2 = buildGraph(reversedEdges);
-
-    // Test `are_isomorphic` function
-    try {
-        return are_isomorphic(graph1, graph2);
-    } catch (error) {
-        console.error('Error while testing graphs:', { graph1, graph2 });
-        throw error;
+    for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+            newGraph[mapping[i]][mapping[j]] = graph[i][j];
+        }
     }
+
+    return newGraph;
+}
+
+// Property-based test for isomorphism correctness
+const test = jsc.forall(jsc.array(jsc.tuple([jsc.nat(7), jsc.nat(7)])), edges => {
+    // Build original graph
+    let graph1 = buildGraph(edges);
+
+    // Skip if graph has no edges (trivial case)
+    if (edges.length === 0) return true;
+
+    // Create an isomorphic graph by relabeling vertices
+    let mapping = [...Array(graph1.length).keys()].sort(() => Math.random() - 0.5); // Random permutation
+    let graph2 = createIsomorphicGraph(graph1, mapping);
+
+    // Assert that the function correctly identifies isomorphic graphs
+    if (!are_isomorphic(graph1, graph2)) {
+        console.error('Failed isomorphic test:', { graph1, graph2, mapping });
+        return false;
+    }
+
+    // Modify graph2 to make it non-isomorphic
+    if (graph2.length > 1) {
+        graph2[0][1] = 1 - graph2[0][1]; // Flip one edge
+    }
+
+    // Assert that the function correctly identifies non-isomorphic graphs
+    if (are_isomorphic(graph1, graph2)) {
+        console.error('Failed non-isomorphic test:', { graph1, graph2 });
+        return false;
+    }
+
+    return true;
 });
 
-// Assert the test with fewer cases for faster results
+// Run the test with fewer cases for faster results
 jsc.assert(test, { tests: 100 });
